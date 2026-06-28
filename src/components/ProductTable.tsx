@@ -14,9 +14,19 @@ interface ProductTableProps {
 
 function getStockStatus(level: number, max: number) {
   const pct = max > 0 ? (level / max) * 100 : 0;
-  if (level === 0) return { label: "Out of Stock", color: "bg-on-surface-variant", textColor: "text-on-surface-variant" };
-  if (pct <= 20) return { label: "Low Stock", color: "bg-error", textColor: "text-error" };
-  return { label: "In Stock", color: "bg-tertiary-fixed-dim", textColor: "text-on-tertiary-container" };
+  if (level === 0)
+    return {
+      label: "Out of Stock",
+      color: "bg-on-surface-variant",
+      textColor: "text-on-surface-variant",
+    };
+  if (pct <= 20)
+    return { label: "Low Stock", color: "bg-error", textColor: "text-error" };
+  return {
+    label: "In Stock",
+    color: "bg-tertiary-fixed-dim",
+    textColor: "text-on-tertiary-container",
+  };
 }
 
 function getCategoryStyle(category: string) {
@@ -47,7 +57,10 @@ function getCategoryIcon(category: string) {
 
 function formatPrice(price: string | number) {
   const num = typeof price === "string" ? parseFloat(price) : price;
-  return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `$${num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 export default function ProductTable({
@@ -70,7 +83,11 @@ export default function ProductTable({
     } else {
       pages.push(1);
       if (page > 3) pages.push("...");
-      for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      for (
+        let i = Math.max(2, page - 1);
+        i <= Math.min(totalPages - 1, page + 1);
+        i++
+      ) {
         pages.push(i);
       }
       if (page < totalPages - 2) pages.push("...");
@@ -81,7 +98,8 @@ export default function ProductTable({
 
   return (
     <div className="bg-surface-container-lowest rounded-xl border border-outline-variant techno-shadow overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* ===== DESKTOP TABLE (hidden on mobile) ===== */}
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-outline-variant bg-surface-container-low/50">
@@ -111,14 +129,26 @@ export default function ProductTable({
           <tbody className="divide-y divide-outline-variant">
             {products.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-on-surface-variant">
+                <td
+                  colSpan={7}
+                  className="px-6 py-12 text-center text-on-surface-variant"
+                >
                   No products found.
                 </td>
               </tr>
             )}
             {products.map((product) => {
-              const status = getStockStatus(product.stockLevel, product.maxStock);
-              const pct = product.maxStock > 0 ? Math.min(100, (product.stockLevel / product.maxStock) * 100) : 0;
+              const status = getStockStatus(
+                product.stockLevel,
+                product.maxStock
+              );
+              const pct =
+                product.maxStock > 0
+                  ? Math.min(
+                      100,
+                      (product.stockLevel / product.maxStock) * 100
+                    )
+                  : 0;
               return (
                 <tr
                   key={product.id}
@@ -199,15 +229,119 @@ export default function ProductTable({
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="px-6 py-4 flex items-center justify-between bg-surface-container-low border-t border-outline-variant">
-        <p className="text-[14px] leading-[20px] text-on-surface-variant">
-          Showing {totalCount > 0 ? startItem : 0} to {endItem} of{" "}
-          {totalCount.toLocaleString()} results
+      {/* ===== MOBILE CARD VIEW (hidden on desktop) ===== */}
+      <div className="lg:hidden divide-y divide-outline-variant">
+        {products.length === 0 && (
+          <div className="px-4 py-12 text-center text-on-surface-variant">
+            No products found.
+          </div>
+        )}
+        {products.map((product) => {
+          const status = getStockStatus(product.stockLevel, product.maxStock);
+          const pct =
+            product.maxStock > 0
+              ? Math.min(100, (product.stockLevel / product.maxStock) * 100)
+              : 0;
+          return (
+            <div
+              key={product.id}
+              className="p-4 hover:bg-surface-container transition-colors"
+            >
+              {/* Top row: icon, name, actions */}
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-outline">
+                    {getCategoryIcon(product.category)}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[15px] leading-[22px] font-bold truncate">
+                    {product.name}
+                  </p>
+                  <p className="font-mono text-[12px] leading-[16px] text-on-surface-variant mt-0.5">
+                    {product.sku}
+                  </p>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  <button
+                    className="p-1.5 rounded hover:bg-secondary-fixed text-secondary transition-colors"
+                    title="Edit"
+                    onClick={() => onEdit(product)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      edit_square
+                    </span>
+                  </button>
+                  <button
+                    className="p-1.5 rounded hover:bg-error-container text-error transition-colors"
+                    title="Delete"
+                    onClick={() => onDelete(product.id)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      delete
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Middle row: category badge + stock */}
+              <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
+                <span
+                  className={`${getCategoryStyle(product.category)} px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider`}
+                >
+                  {product.category}
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                    <div
+                      className={`${status.color} h-full transition-all`}
+                      style={{ width: `${pct}%` }}
+                    ></div>
+                  </div>
+                  <span className="font-mono text-[12px] font-medium">
+                    {product.stockLevel}
+                  </span>
+                  <span
+                    className={`text-[10px] ${status.textColor} font-bold uppercase`}
+                  >
+                    {status.label}
+                  </span>
+                </div>
+              </div>
+
+              {/* Bottom row: prices */}
+              <div className="mt-3 flex items-center gap-4 text-[13px]">
+                <div>
+                  <span className="text-on-surface-variant text-[10px] uppercase font-bold tracking-wider">
+                    Buy{" "}
+                  </span>
+                  <span className="font-mono font-medium">
+                    {formatPrice(product.buyPrice)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-on-surface-variant text-[10px] uppercase font-bold tracking-wider">
+                    Sell{" "}
+                  </span>
+                  <span className="font-mono font-bold text-secondary">
+                    {formatPrice(product.sellPrice)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ===== PAGINATION ===== */}
+      <div className="px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-container-low border-t border-outline-variant">
+        <p className="text-[13px] sm:text-[14px] leading-[20px] text-on-surface-variant">
+          Showing {totalCount > 0 ? startItem : 0} – {endItem} of{" "}
+          {totalCount.toLocaleString()}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
-            className="p-2 rounded border border-outline-variant hover:bg-surface disabled:opacity-30"
+            className="p-1.5 sm:p-2 rounded border border-outline-variant hover:bg-surface disabled:opacity-30"
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
           >
@@ -217,13 +351,16 @@ export default function ProductTable({
           </button>
           {renderPagination().map((p, i) =>
             typeof p === "string" ? (
-              <span key={`dots-${i}`} className="text-on-surface-variant px-1">
+              <span
+                key={`dots-${i}`}
+                className="text-on-surface-variant px-0.5 sm:px-1 text-xs"
+              >
                 ...
               </span>
             ) : (
               <button
                 key={p}
-                className={`w-8 h-8 rounded font-bold text-xs ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded font-bold text-xs ${
                   p === page
                     ? "bg-secondary text-white"
                     : "border border-outline-variant hover:bg-surface text-on-surface-variant"
@@ -235,7 +372,7 @@ export default function ProductTable({
             )
           )}
           <button
-            className="p-2 rounded border border-outline-variant hover:bg-surface disabled:opacity-30"
+            className="p-1.5 sm:p-2 rounded border border-outline-variant hover:bg-surface disabled:opacity-30"
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
           >

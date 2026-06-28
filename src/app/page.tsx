@@ -32,6 +32,9 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  // Sidebar mobile state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Modal states
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -51,7 +54,7 @@ export default function HomePage() {
         await fetch("/api/seed", { method: "POST" });
         setSeeded(true);
       } catch {
-        setSeeded(true); // Continue anyway
+        setSeeded(true);
       }
     }
     seed();
@@ -163,21 +166,28 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen overflow-x-hidden">
-      <Sidebar />
+      <Sidebar
+        mobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <main className="flex-1 ml-sidebar-width min-h-screen flex flex-col">
-        <TopNav searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      {/* Main content: no margin on mobile, sidebar margin on lg+ */}
+      <main className="flex-1 lg:ml-sidebar-width min-h-screen flex flex-col w-full">
+        <TopNav
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onMenuToggle={() => setSidebarOpen(true)}
+        />
 
-        <div className="p-gutter flex-1 max-w-[1440px] mx-auto w-full">
+        <div className="p-4 sm:p-gutter flex-1 max-w-[1440px] mx-auto w-full">
           {/* Page Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
             <div>
-              <h2 className="text-[30px] leading-[38px] font-semibold tracking-tight text-primary">
+              <h2 className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-semibold tracking-tight text-primary">
                 Product Inventory
               </h2>
-              <p className="text-on-surface-variant text-[14px] leading-[20px]">
-                Manage, track, and update your enterprise-level product stock in
-                real-time.
+              <p className="text-on-surface-variant text-[13px] sm:text-[14px] leading-[20px]">
+                Manage, track, and update your product stock in real-time.
               </p>
             </div>
             <button
@@ -185,7 +195,7 @@ export default function HomePage() {
                 setEditingProduct(null);
                 setShowProductModal(true);
               }}
-              className="px-6 py-2.5 bg-secondary text-white font-bold text-sm rounded-lg flex items-center gap-2 techno-shadow hover:bg-secondary-container transition-all active:scale-95"
+              className="px-4 sm:px-6 py-2.5 bg-secondary text-white font-bold text-sm rounded-lg flex items-center justify-center gap-2 techno-shadow hover:bg-secondary-container transition-all active:scale-95 w-full sm:w-auto shrink-0"
             >
               <span className="material-symbols-outlined">add_box</span>
               Add Product
@@ -193,7 +203,7 @@ export default function HomePage() {
           </div>
 
           {/* Dashboard Stats & Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter mb-6 sm:mb-8">
             <StatsCards
               totalProducts={data.stats.total}
               lowStockCount={data.stats.lowStock}
@@ -209,12 +219,14 @@ export default function HomePage() {
 
           {/* Error state */}
           {error && (
-            <div className="mb-6 p-4 bg-error-container text-on-error-container rounded-xl border border-error/20 flex items-center gap-3">
-              <span className="material-symbols-outlined">error</span>
-              <span className="text-[14px]">{error}</span>
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-error-container text-on-error-container rounded-xl border border-error/20 flex items-center gap-3">
+              <span className="material-symbols-outlined shrink-0">error</span>
+              <span className="text-[13px] sm:text-[14px] flex-1">
+                {error}
+              </span>
               <button
                 onClick={fetchProducts}
-                className="ml-auto text-sm font-bold underline"
+                className="text-sm font-bold underline shrink-0"
               >
                 Retry
               </button>
@@ -247,12 +259,12 @@ export default function HomePage() {
         </div>
 
         {/* Footer */}
-        <footer className="p-gutter mt-auto flex justify-between items-center bg-surface border-t border-outline-variant">
-          <div className="flex items-center gap-2 text-on-surface-variant text-[11px] font-medium uppercase tracking-wider">
-            <span className="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
-            System Operational: All nodes synced
+        <footer className="p-4 sm:p-gutter mt-auto flex flex-col sm:flex-row justify-between items-center gap-2 bg-surface border-t border-outline-variant">
+          <div className="flex items-center gap-2 text-on-surface-variant text-[10px] sm:text-[11px] font-medium uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse shrink-0"></span>
+            <span>System Operational: All nodes synced</span>
           </div>
-          <p className="text-[11px] text-on-surface-variant font-medium">
+          <p className="text-[10px] sm:text-[11px] text-on-surface-variant font-medium">
             StockFlow Enterprise Pro v4.2.0 • © 2024
           </p>
         </footer>

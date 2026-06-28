@@ -16,9 +16,9 @@ export default function Filters({
   categories,
 }: FiltersProps) {
   return (
-    <div className="md:col-span-2 bg-surface-container-highest/30 p-6 rounded-xl border border-outline-variant techno-shadow flex flex-col justify-center">
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex-1 min-w-[200px]">
+    <div className="col-span-1 sm:col-span-2 bg-surface-container-highest/30 p-4 sm:p-6 rounded-xl border border-outline-variant techno-shadow flex flex-col justify-center">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0 sm:min-w-[180px]">
           <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1 block">
             Category
           </label>
@@ -35,7 +35,7 @@ export default function Filters({
             ))}
           </select>
         </div>
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-1 min-w-0 sm:min-w-[180px]">
           <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1 block">
             Stock Status
           </label>
@@ -50,7 +50,7 @@ export default function Filters({
             <option value="out_of_stock">Out of Stock</option>
           </select>
         </div>
-        <button className="mt-5 p-2.5 rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">
+        <button className="sm:mt-5 p-2.5 rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors self-end sm:self-auto">
           <span className="material-symbols-outlined">filter_list</span>
         </button>
       </div>

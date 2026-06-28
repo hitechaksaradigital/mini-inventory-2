@@ -23,7 +23,14 @@ export interface ProductFormData {
   description: string;
 }
 
-const CATEGORIES = ["Electronics", "Clothing", "Food", "Furniture", "Tools", "Other"];
+const CATEGORIES = [
+  "Electronics",
+  "Clothing",
+  "Food",
+  "Furniture",
+  "Tools",
+  "Other",
+];
 
 export default function ProductModal({
   isOpen,
@@ -80,10 +87,10 @@ export default function ProductModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4">
-      <div className="bg-surface-container-lowest rounded-xl techno-shadow w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-in">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-          <h3 className="text-[20px] leading-[28px] font-bold">
+    <div className="fixed inset-0 bg-black/40 z-[60] flex items-end sm:items-center justify-center sm:p-4">
+      <div className="bg-surface-container-lowest rounded-t-xl sm:rounded-xl techno-shadow w-full sm:max-w-lg max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-slide-in">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-outline-variant sticky top-0 bg-surface-container-lowest z-10">
+          <h3 className="text-[18px] sm:text-[20px] leading-[28px] font-bold">
             {product ? "Edit Product" : "Add Product"}
           </h3>
           <button
@@ -94,7 +101,7 @@ export default function ProductModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           <div>
             <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1 block">
               Product Name *
@@ -108,7 +115,7 @@ export default function ProductModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1 block">
                 SKU *
@@ -128,7 +135,9 @@ export default function ProductModal({
               <select
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg text-[14px] leading-[20px] py-2 px-3 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none"
                 value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value })
+                }
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -150,7 +159,10 @@ export default function ProductModal({
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg text-[14px] leading-[20px] py-2 px-3 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none"
                 value={form.stockLevel}
                 onChange={(e) =>
-                  setForm({ ...form, stockLevel: parseInt(e.target.value) || 0 })
+                  setForm({
+                    ...form,
+                    stockLevel: parseInt(e.target.value) || 0,
+                  })
                 }
               />
             </div>
@@ -164,7 +176,10 @@ export default function ProductModal({
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg text-[14px] leading-[20px] py-2 px-3 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none"
                 value={form.maxStock}
                 onChange={(e) =>
-                  setForm({ ...form, maxStock: parseInt(e.target.value) || 100 })
+                  setForm({
+                    ...form,
+                    maxStock: parseInt(e.target.value) || 100,
+                  })
                 }
               />
             </div>
@@ -182,7 +197,9 @@ export default function ProductModal({
                 required
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg text-[14px] leading-[20px] py-2 px-3 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none"
                 value={form.buyPrice}
-                onChange={(e) => setForm({ ...form, buyPrice: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, buyPrice: e.target.value })
+                }
               />
             </div>
             <div>
@@ -196,7 +213,9 @@ export default function ProductModal({
                 required
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg text-[14px] leading-[20px] py-2 px-3 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none"
                 value={form.sellPrice}
-                onChange={(e) => setForm({ ...form, sellPrice: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, sellPrice: e.target.value })
+                }
               />
             </div>
           </div>
@@ -215,18 +234,18 @@ export default function ProductModal({
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-outline-variant">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors"
+              className="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2 bg-secondary text-white font-bold text-sm rounded-lg hover:bg-secondary-container transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+              className="px-6 py-2.5 bg-secondary text-white font-bold text-sm rounded-lg hover:bg-secondary-container transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {saving && (
                 <span className="material-symbols-outlined animate-spin text-sm">
