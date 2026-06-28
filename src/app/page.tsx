@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import Sidebar from "@/components/Sidebar";
@@ -10,14 +12,10 @@ import DeleteModal from "@/components/DeleteModal";
 import type { Product } from "@/db/schema";
 import type { ProductFormData } from "@/components/ProductModal";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase URL and anon key are required");
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const SEED_DATA = [
   { name: 'MacBook Pro M2 - 14"', sku: "ELC-MBP-14-M2", category: "Electronics", stock_level: 42, max_stock: 50, buy_price: "1850.00", sell_price: "2299.00", icon: "devices" },
