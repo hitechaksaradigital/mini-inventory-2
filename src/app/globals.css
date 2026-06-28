@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-on-background: #191c1e;
+  --color-outline: #76777d;
+  --color-on-primary-container: #7c839b;
+  --color-surface-tint: #565e74;
+  --color-inverse-primary: #bec6e0;
+  --color-primary-fixed: #dae2fd;
+  --color-on-error: #ffffff;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-tertiary-container: #002113;
+  --color-inverse-surface: #2d3133;
+  --color-surface-variant: #e0e3e5;
+  --color-on-surface-variant: #45464d;
+  --color-surface: #f7f9fb;
+  --color-surface-container-high: #e6e8ea;
+  --color-on-secondary: #ffffff;
+  --color-background: #f7f9fb;
+  --color-primary-fixed-dim: #bec6e0;
+  --color-primary: #000000;
+  --color-on-primary-fixed: #131b2e;
+  --color-on-tertiary: #ffffff;
+  --color-surface-bright: #f7f9fb;
+  --color-surface-container-highest: #e0e3e5;
+  --color-error-container: #ffdad6;
+  --color-on-secondary-fixed: #001a42;
+  --color-on-tertiary-fixed: #002113;
+  --color-on-tertiary-fixed-variant: #005236;
+  --color-error: #ba1a1a;
+  --color-inverse-on-surface: #eff1f3;
+  --color-tertiary: #000000;
+  --color-primary-container: #131b2e;
+  --color-on-secondary-container: #fefcff;
+  --color-on-error-container: #93000a;
+  --color-secondary-container: #2170e4;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-primary-fixed-variant: #3f465c;
+  --color-surface-dim: #d8dadc;
+  --color-on-primary: #ffffff;
+  --color-secondary: #0058be;
+  --color-on-surface: #191c1e;
+  --color-outline-variant: #c6c6cd;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container: #eceef0;
+  --color-on-tertiary-container: #009668;
+  --color-secondary-fixed-dim: #adc6ff;
+  --color-secondary-fixed: #d8e2ff;
+  --color-on-secondary-fixed-variant: #004395;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --spacing-gutter: 24px;
+  --spacing-sidebar-width: 240px;
+}
+
+body {
+  background-color: #F8FAFC;
+  color: #191c1e;
+  font-family: 'Inter', sans-serif;
+}
+
+.techno-shadow {
+  box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
