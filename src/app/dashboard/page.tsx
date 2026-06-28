@@ -1,10 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 import Sidebar from "@/components/Sidebar";
+import type { Product } from "@/db/schema";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0);
+  const [outOfStockCount, setOutOfStockCount] = useState(0);
+  const [criticalProducts, setCriticalProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const { count: totalCount } = await supabase
+          .from("products")
+          .select("*", { count: "exact", head: true });
+        setTotalProducts(totalCount || 0);
+
+        const { count: lowCount } = await supabase
+          .from("products")
+          .select("*", { count: "exact", head: true })
+          .gt("stock_level", 0)
+          .lt("stock_level", 20);
+        setLowStockCount(lowCount || 0);
+
+        const { count: outCount } = await supabase
+          .from("products")
+          .select("*", { count: "exact", head: true })
+          .eq("stock_level", 0);
+        setOutOfStockCount(outCount || 0);
+
+        const { data: criticalData } = await supabase
+          .from("products")
+          .select("*")
+          .or("stock_level.eq.0,stock_level.lt.20")
+          .order("stock_level", { ascending: true })
+          .limit(10);
+
+        if (criticalData) {
+          setCriticalProducts(
+            criticalData.map((p) => ({
+              id: p.id,
+              name: p.name,
+              sku: p.sku,
+              category: p.category,
+              stockLevel: p.stock_level,
+              maxStock: p.max_stock,
+              buyPrice: p.buy_price,
+              sellPrice: p.sell_price,
+              icon: p.icon,
+              description: p.description,
+              createdAt: p.created_at,
+              updatedAt: p.updated_at,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  const getStockStatus = (stockLevel: number) => {
+    if (stockLevel === 0) return { label: "Out of Stock", className: "bg-error-container text-on-error-container" };
+    return { label: `${stockLevel} units`, className: "bg-error-container text-on-error-container" };
+  };
 
   return (
     <div className="flex min-h-screen bg-surface overflow-x-hidden">
@@ -97,12 +170,16 @@ export default function DashboardPage() {
               <h3 className="text-on-surface-variant text-[12px] leading-[16px] tracking-[0.05em] font-bold uppercase mb-1">
                 Total Products
               </h3>
-              <p className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-bold tracking-tight text-primary">
-                2,845
-              </p>
+              {loading ? (
+                <div className="h-[38px] w-24 bg-surface-container-high rounded animate-pulse" />
+              ) : (
+                <p className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-bold tracking-tight text-primary">
+                  {totalProducts.toLocaleString()}
+                </p>
+              )}
               <p className="text-[14px] leading-[20px] text-outline mt-4 flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">update</span>{" "}
-                Updated 4m ago
+                Updated just now
               </p>
             </div>
 
@@ -120,12 +197,16 @@ export default function DashboardPage() {
               <h3 className="text-on-surface-variant text-[12px] leading-[16px] tracking-[0.05em] font-bold uppercase mb-1">
                 Low Stock Items
               </h3>
-              <p className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-bold tracking-tight text-error">
-                42
-              </p>
+              {loading ? (
+                <div className="h-[38px] w-16 bg-surface-container-high rounded animate-pulse" />
+              ) : (
+                <p className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-bold tracking-tight text-error">
+                  {lowStockCount}
+                </p>
+              )}
               <div className="mt-4 flex -space-x-2">
                 <div className="w-7 h-7 rounded-full border-2 border-white bg-error-container flex items-center justify-center text-on-error-container text-[10px] font-bold">
-                  +39
+                  +{Math.max(0, lowStockCount - 1)}
                 </div>
               </div>
             </div>
@@ -143,9 +224,13 @@ export default function DashboardPage() {
               <h3 className="text-on-surface-variant text-[12px] leading-[16px] tracking-[0.05em] font-bold uppercase mb-1">
                 Out of Stock
               </h3>
-              <p className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-bold tracking-tight text-on-background">
-                12
-              </p>
+              {loading ? (
+                <div className="h-[38px] w-16 bg-surface-container-high rounded animate-pulse" />
+              ) : (
+                <p className="text-[24px] sm:text-[30px] leading-[32px] sm:leading-[38px] font-bold tracking-tight text-on-background">
+                  {outOfStockCount}
+                </p>
+              )}
               <p className="text-[14px] leading-[20px] text-outline mt-4">
                 Immediate replenishment required.
               </p>
@@ -158,12 +243,12 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 glass-card p-6 rounded-xl flex flex-col">
               <div className="flex justify-between items-center mb-6">
                 <div>
-              <h3 className="text-[20px] leading-[28px] font-semibold">
-                Stock Movement Flow
-              </h3>
-              <p className="text-on-surface-variant text-[14px] leading-[20px]">
-                Weekly inflow vs. outflow analytics
-              </p>
+                  <h3 className="text-[20px] leading-[28px] font-semibold">
+                    Stock Movement Flow
+                  </h3>
+                  <p className="text-on-surface-variant text-[14px] leading-[20px]">
+                    Weekly inflow vs. outflow analytics
+                  </p>
                 </div>
                 <select className="bg-surface-container-low border-outline-variant rounded-lg text-xs font-semibold focus:ring-secondary/20">
                   <option>Last 7 Days</option>
@@ -360,85 +445,64 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/30">
-                  <tr className="hover:bg-secondary/5 transition-colors cursor-pointer group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-surface-container-high rounded-lg overflow-hidden shrink-0"></div>
-                        <span className="font-semibold text-sm">
-                          Sony WH-1000XM5
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-[13px] leading-[18px] text-outline">
-                      SNY-HP-001
-                    </td>
-                    <td className="px-6 py-4 text-sm">Audio</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-error-container text-on-error-container">
-                        2 units
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-on-surface-variant">
-                      5 units
-                    </td>
-                    <td className="px-6 py-4">
-                      <button className="text-secondary font-bold text-xs hover:underline decoration-2">
-                        Restock
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-secondary/5 transition-colors cursor-pointer group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-surface-container-high rounded-lg overflow-hidden shrink-0"></div>
-                        <span className="font-semibold text-sm">Fujifilm X-T5</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-[13px] leading-[18px] text-outline">
-                      FJI-CAM-092
-                    </td>
-                    <td className="px-6 py-4 text-sm">Photography</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-error-container text-on-error-container">
-                        1 units
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-on-surface-variant">
-                      3 units
-                    </td>
-                    <td className="px-6 py-4">
-                      <button className="text-secondary font-bold text-xs hover:underline decoration-2">
-                        Restock
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-secondary/5 transition-colors cursor-pointer group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-surface-container-high rounded-lg overflow-hidden shrink-0"></div>
-                        <span className="font-semibold text-sm">
-                          Keychron Q1 Max
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-[13px] leading-[18px] text-outline">
-                      KCH-KB-221
-                    </td>
-                    <td className="px-6 py-4 text-sm">Peripherals</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-error-container text-on-error-container">
-                        0 units
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-on-surface-variant">
-                      10 units
-                    </td>
-                    <td className="px-6 py-4">
-                      <button className="text-secondary font-bold text-xs hover:underline decoration-2">
-                        Restock
-                      </button>
-                    </td>
-                  </tr>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <span className="material-symbols-outlined animate-spin text-secondary text-[32px]">
+                            progress_activity
+                          </span>
+                          <p className="text-on-surface-variant text-[14px]">
+                            Loading critical stock...
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : criticalProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-on-surface-variant text-[14px]">
+                        No critical stock items found.
+                      </td>
+                    </tr>
+                  ) : (
+                    criticalProducts.map((product) => {
+                      const status = getStockStatus(product.stockLevel);
+                      return (
+                        <tr
+                          key={product.id}
+                          className="hover:bg-secondary/5 transition-colors cursor-pointer group"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-surface-container-high rounded-lg overflow-hidden shrink-0"></div>
+                              <span className="font-semibold text-sm">
+                                {product.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-mono text-[13px] leading-[18px] text-outline">
+                            {product.sku}
+                          </td>
+                          <td className="px-6 py-4 text-sm">{product.category}</td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${status.className}`}
+                            >
+                              {status.label}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-on-surface-variant">
+                            {product.maxStock} units
+                          </td>
+                          <td className="px-6 py-4">
+                            <button className="text-secondary font-bold text-xs hover:underline decoration-2">
+                              Restock
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
