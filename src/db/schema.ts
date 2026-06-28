@@ -3,14 +3,14 @@ export interface Product {
   name: string;
   sku: string;
   category: string;
-  stock_level: number;
-  max_stock: number;
-  buy_price: string;
-  sell_price: string;
+  stockLevel: number;
+  maxStock: number;
+  buyPrice: string;
+  sellPrice: string;
   icon: string;
   description: string | null;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export type NewProduct = Omit<Product, "id" | "created_at" | "updated_at">;
+export type NewProduct = Omit<Product, "id" | "createdAt" | "updatedAt">;
