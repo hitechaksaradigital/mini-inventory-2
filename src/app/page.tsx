@@ -112,9 +112,9 @@ export default function HomePage() {
         .select("category")
         .order("category");
 
-      const uniqueCategories = [...new Set(categoriesData?.map((c: { category: string }) => c.category) || [])];
+      const uniqueCategories = [...new Set(categoriesData?.map((c: any) => c.category) || [])];
 
-      const products = productsData?.map((p) => ({
+      const products = (productsData?.map((p: any) => ({
         id: p.id,
         name: p.name,
         sku: p.sku,
@@ -127,7 +127,7 @@ export default function HomePage() {
         description: p.description,
         createdAt: p.created_at,
         updatedAt: p.updated_at,
-      })) || [];
+      })) || []);
 
       const totalProducts = count || 0;
 
@@ -199,29 +199,33 @@ export default function HomePage() {
         description: formData.description || null,
       };
 
-      let result;
       if (editingProduct) {
-        result = await supabase
+        const { error } = await supabase
           .from("products")
           .update(productData)
-          .eq("id", editingProduct.id)
-          .select()
-          .single();
-      } else {
-        result = await supabase
-          .from("products")
-          .insert(productData)
-          .select()
-          .single();
-      }
+          .eq("id", editingProduct.id);
 
-      if (result.error) {
-        if (result.error.code === "23505") {
-          alert("A product with this SKU already exists");
-        } else {
-          alert(result.error.message || "Failed to save product");
+        if (error) {
+          if (error.code === "23505") {
+            alert("A product with this SKU already exists");
+          } else {
+            alert(error.message || "Failed to save product");
+          }
+          return;
         }
-        return;
+      } else {
+        const { error } = await supabase
+          .from("products")
+          .insert(productData);
+
+        if (error) {
+          if (error.code === "23505") {
+            alert("A product with this SKU already exists");
+          } else {
+            alert(error.message || "Failed to save product");
+          }
+          return;
+        }
       }
 
       setShowProductModal(false);
